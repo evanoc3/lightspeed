@@ -14,24 +14,27 @@ let starTrail = 0;
 let frameCount = 0;
 let lastScrollTimestamp = performance.now();
 let isScrolling = false;
-let preScrollYOffset = window.pageYOffset;
+let preScrollY = getScrollY();
 
 
 
 function animateFrame() {
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-	ctx.fillStyle = "#030527";
-	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+	// ctx.fillStyle = "#030527";
+	// ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
 	drawStars(ctx, stars, starTrail);
 
 	if(isScrolling && performance.now() > lastScrollTimestamp + 75) {
 		isScrolling = false;
-		preScrollYOffset = window.pageYOffset;
+		preScrollY = getScrollY();
 	}
 
-	if(!isScrolling && starTrail > 1) {
+	if(!isScrolling && (starTrail > 1 || starTrail < -1)) {
 		starTrail *= 0.9;
+	}
+	if(starTrail < 1 && starTrail > -1) {
+		starTrail = 0;
 	}
 
 	frameCount++;
@@ -43,12 +46,12 @@ window.requestAnimationFrame(animateFrame);
 
 function getStars() {
 	let newStarPoints = [];
-	let x = 0;
+	let x = 0, y, r;
 
 	while(x < canvasWidth) {
-		let r = Math.round(Math.random() * 3) + 2;
+		r = Math.round(Math.random() * 2) + 1;
 		x += Math.round(Math.random() * 30) - 8;
-		let y = Math.round(Math.random() * (canvasHeight - r)) + (r * 0.5);
+		y = Math.round(Math.random() * (canvasHeight - r)) + (r * 0.5);
 
 		newStarPoints.push({x, y, r});
 	}
@@ -57,30 +60,29 @@ function getStars() {
 }
 
 
-function drawStars(ctx, stars, trail) {
+function drawStars(ctx, stars) {
 	for(const star of stars) {
 		ctx.beginPath();
-		ctx.fillStyle = "#f3e366";
+		const lightness = 73 + (star.r * 5);
+		ctx.fillStyle = `hsl(53, 85%, ${lightness}%)`;
 
-		if(trail < 0.5) {
+		if(starTrail < 0.5 && starTrail > -0.5) {
 			ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
 			ctx.fill();
-			trail = 0;
+			starTrail = 0;
 		}
 		else {
 			const leftX = star.x - star.r;
 			const rightX = star.x + star.r;
-			const trailY = star.y + trail;
 
-			let starStartAngle, starEndAngle, trailStartAngle, trailEndAngle;
 			let topY, bottomY;
 
-			if(trail > 0) { // star is above trail
+			if(starTrail > 0) { // star is above trail
 				topY = star.y;
-				bottomY = star.y + trail;
+				bottomY = star.y + starTrail;
 			}
 			else { // star is below trail
-				topY = star.y + trail;
+				topY = star.y + starTrail;
 				bottomY = star.y;
 			}
 
@@ -94,19 +96,25 @@ function drawStars(ctx, stars, trail) {
 }
 
 
-function onScroll(e) {
+window.addEventListener("scroll", () => {
 	lastScrollTimestamp = performance.now();
 	if(!isScrolling) {
 		isScrolling = true;
 	}
 
-	const dampener = 0.5;
+	const dampeningFactor = 0.4;
+	let delta;
 
-	if(pageYOffset < preScrollYOffset) {
-		starTrail = (preScrollYOffset - window.pageYOffset) * dampener;
-	} else {
-		starTrail = (window.pageYOffset - preScrollYOffset) * dampener;
+	if(getScrollY() < preScrollY) { // i.e. you've scrolled up
+		delta = (preScrollY - getScrollY()) * -1;
+	} else { // i.e. you've scrolled down
+		delta = getScrollY() - preScrollY;
 	}
-}
 
-window.addEventListener("scroll", onScroll);
+	starTrail = delta * dampeningFactor;
+});
+
+
+function getScrollY() {
+	return window.scrollY || (document.documentElement || document.body.parentNode || document.body).scrollTop;
+}
