@@ -1,6 +1,6 @@
 {
   "name": "@evanoc3/lightspeed",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A JS canvas animation to make scrolling feel like going at light speed",
   "scripts": {
     "start": "parcel serve src/index.html --port 8080"
