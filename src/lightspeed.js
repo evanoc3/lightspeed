@@ -20,8 +20,6 @@ let preScrollY = getScrollY();
 
 function animateFrame() {
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-	// ctx.fillStyle = "#030527";
-	// ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
 	drawStars(ctx, stars, starTrail);
 
