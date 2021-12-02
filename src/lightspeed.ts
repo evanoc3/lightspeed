@@ -1,12 +1,9 @@
 "use strict";
 
+interface Star { x: number, y: number, r: number }
 
-interface Star {
-	x: number,
-	y: number,
-	r: number
-}
-
+const DPR = window.devicePixelRatio || 1;
+const dampeningFactor = 0.4;
 
 let canvas: HTMLCanvasElement;
 let maxWidth: number;
@@ -19,29 +16,41 @@ let lastScrollTimestamp: number;
 let isScrolling: boolean;
 let preScrollY: number;
 let lastDrawnFrame: number;
+let fpsLabel: HTMLSpanElement;
+let lastSecondIntervalFrameCount: number;
+let lastSecondIntervalTimestamp: number;
 
 
+// Begin script execution when the page is loaded
 window.addEventListener("load", setup);
 
 
 function setup(): void {
-	// variable initialization
+	// set width & height on canvas
 	canvas = document.getElementById("canvas") as HTMLCanvasElement;
-	maxWidth = canvas.clientWidth;
-	maxHeight = canvas.clientHeight;
+	const canvasRect = canvas.getBoundingClientRect();
+	maxWidth = canvasRect.width * DPR;
+	maxHeight = canvasRect.height * DPR;
+	canvas.width = maxWidth;
+	canvas.height = maxHeight;
+
+	// variable initialization
 	stars = createStars(0);
 	trail = 0;
 	lastScrollTimestamp = performance.now();
 	isScrolling = false;
 	preScrollY = getScrollY();
 	lastDrawnFrame = 0;
-
-	// set width & height on canvas
-	canvas.width = maxWidth;
-	canvas.height = maxHeight;
+	frameCount = 0;
+	fpsLabel = document.getElementById("fps-label") as HTMLSpanElement;
+	lastSecondIntervalFrameCount = 0;
+	lastSecondIntervalTimestamp = 0;
 
 	// get canvas rendering context
 	ctx = canvas.getContext("2d");
+
+	// scale the context by the device pixel ratio
+	ctx.scale(DPR, DPR);
 
 	// register handler for events
 	window.addEventListener("scroll", onScroll);
@@ -49,6 +58,9 @@ function setup(): void {
 	
 	// begin animation loop
 	requestAnimationFrame(drawFrame);
+
+	// setup FPS label
+	setInterval(eachSecondInterval, 1000);
 }
 
 
@@ -58,7 +70,7 @@ function createStars(x: number): Star[] {
 
 	while(x < maxWidth) {
 		r = Math.round(Math.random() * 2) + 1;
-		x += Math.round(Math.random() * 30) - 8;
+		x += Math.round(Math.random() * 25) - 8;
 		y = Math.round(Math.random() * (maxHeight - r)) + r;
 
 		newStarPoints.push({x, y, r});
@@ -140,7 +152,6 @@ function onScroll(): void {
 		isScrolling = true;
 	}
 
-	const dampeningFactor = 0.4;
 	let yDelta: number;
 
 	if(getScrollY() < preScrollY) { // i.e. you've scrolled up
@@ -192,4 +203,18 @@ function onResize(): void {
 			stars = stars.slice(0, newEndIndex);
 		}
 	}
+}
+
+
+function eachSecondInterval() {
+	const now = performance.now();
+
+	const timeDelta = (now - lastSecondIntervalTimestamp) / 1000;
+	const frameDelta = frameCount - lastSecondIntervalFrameCount;
+
+	fpsLabel.innerText = `${Math.round(frameDelta / timeDelta)} fps`;
+
+
+	lastSecondIntervalFrameCount = frameCount;
+	lastSecondIntervalTimestamp = now;
 }

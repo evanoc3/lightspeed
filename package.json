@@ -9,6 +9,7 @@
   "author": "Evan O'Connor <evan@evanoconnor.ie> (https://evanoconnor.ie)",
   "license": "MIT",
   "devDependencies": {
+    "@parcel/transformer-sass": "^2.0.1",
     "parcel": "^2.0.1"
   },
   "private": true
