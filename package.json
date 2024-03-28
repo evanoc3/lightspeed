@@ -1,16 +1,15 @@
 {
-  "name": "@evanoc3/lightspeed",
-  "version": "1.1.0",
-  "description": "A JS canvas animation to make scrolling feel like going at light speed",
-  "scripts": {
-    "start": "parcel serve src/index.html --port 8080"
-  },
-  "keywords": [],
   "author": "Evan O'Connor <evan@evanoconnor.ie> (https://evanoconnor.ie)",
-  "license": "MIT",
-  "devDependencies": {
-    "@parcel/transformer-sass": "^2.0.1",
-    "parcel": "^2.0.1"
+  "dependencies": {
+    "parcel": "^2.12.0"
   },
-  "private": true
+  "description": "A JS canvas animation to make scrolling feel like going at light speed",
+  "license": "MIT",
+  "name": "@evanoc3/lightspeed",
+  "private": true,
+  "scripts": {
+    "build": "parcel build \"src/**/*.html\"",
+    "dev": "parcel serve \"src/**/*.html\" --port 8080"
+  },
+  "version": "1.1.0"
 }

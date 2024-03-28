@@ -1,6 +1,12 @@
 "use strict";
 
-interface Star { x: number, y: number, r: number }
+
+interface Star {
+	x: number,
+	y: number,
+	r: number
+}
+
 
 const DPR = window.devicePixelRatio || 1;
 const dampeningFactor = 0.4;
@@ -47,7 +53,7 @@ function setup(): void {
 	lastSecondIntervalTimestamp = 0;
 
 	// get canvas rendering context
-	ctx = canvas.getContext("2d");
+	ctx = canvas.getContext("2d")!;
 
 	// scale the context by the device pixel ratio
 	ctx.scale(DPR, DPR);
